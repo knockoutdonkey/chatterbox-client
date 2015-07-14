@@ -1,8 +1,6 @@
-var LoginView = Backbone.View.extend({
+var AppView = Backbone.View.extend({
   initialize: function() {
     this.render();
-    this.user = new User({name: username, roomname: roomname}); // what do i do with this?
-    this.room = new Room({name: roomname, user: user}); 
   },
 
   render: function() {
@@ -15,30 +13,49 @@ var LoginView = Backbone.View.extend({
     ].join('');
 
     this.$el.html(html);
-    $('html').append(html);
+    $('body').append(html);
 
     $('.login').submit(function(event) {
       event.preventDefault();
-      var username = $('.loginuser').val();
+      var username = $('.loginuser').val() || 'anonymous';
       var roomname = $('.loginroom').val();
-      console.log($('.loginroom').val())
-      rooms.push(room);
-    });
+      var user = new User({name: username, roomname: roomname});  
+      var room = new Room({name: roomname, user: user});
+      console.log(this);
+      this.model.set('user', user);
+      this.model.set('room', room);
+    }.bind(this));
   }
 });
 
 var RoomView = Backbone.View.extend({
   initialize: function() {
-    this.render(this.model.name);
-    setInterval(function(){ getMessages( this.model.name );}.bind(this), 500);
+    // this.interval = setInterval(function(){ getMessages( this.model.get("name") );}.bind(this), 500);
+    this.render();
+    
+    this.model.on('change', function(){
+      if (this.interval !== undefined) {
+        clearInterval(this.interval);
+      }
+
+      if(this.model.get('name') !== ""){
+        this.render(this.model.get("name"));
+        this.interval = setInterval(function(){ 
+          getMessages(this.model.get("name"));
+          getFriends(this.model.get('user'));
+        }.bind(this), 500);
+      }
+    }.bind(this));
   },
 
   render: function() {
     $('body').empty();
-
     var html = [
       '<div class="container">',
-        '<div class="roomheader">Super Awesome Donkey Chat</div>',
+        '<div class="roomheader">',
+        'Welcome to ',
+        this.model.get('name'),
+        '</div>',
         '<div class="chatdisplay">',
           '<ul class="chats">',
           '</ul>',
@@ -52,11 +69,11 @@ var RoomView = Backbone.View.extend({
 
     this.$el.html(html);
 
-    $('body').append(this.$el);
+    $('body').append(this.$el); 
 
     $('.sendchat').submit(function(event) {
       event.preventDefault();
-      postMessage(this.model.user.name, this.model.name, $('.sendchattext').val());
+      postMessage(window.app.get('user').get('name'), this.model.get("name"), $('.sendchattext').val());
       $('.sendchattext').val('');
     }.bind(this));
   }
@@ -75,13 +92,24 @@ var MessageView = Backbone.View.extend({
       '</li>'
     ].join("");
 
-    var textNode = document.createTextNode(this.model.text);
-    var authorNode = document.createTextNode(this.model.username);
-
+    var textNode = document.createTextNode(this.model.get('text'));
+    var authorNode = document.createTextNode(this.model.get("username"));
+    
     this.$el.html(html);
     this.$el.find('.chatauthor').append(authorNode);
     this.$el.find('.chattext').append(textNode);
+    $('.chatdisplay').append(this.$el);
+    
+    $(".chatauthor").click(function(event) {
+        console.log('hello');
+      if ($(".chatauthor").hasClass(".friend")) {
+        // send delete request
+      } else {
+        postFriend( app.get('user'),$(".chatauthor").text());
+      }
+      getFriends();
+    });
+
     // $('body').append(this.$el);
-    $('.chatdisplay').append(this.$el);  
   }
 });

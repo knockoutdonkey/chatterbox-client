@@ -1,30 +1,33 @@
-// should be a collection
-var rooms = [];
+var App = Backbone.Model.extend({
+  initialize: function(message) {
+    this.set('room','');
+    this.set('user','');
+    new AppView({model: this});
+  }
+});
 
 var Room = Backbone.Model.extend({
   initialize: function(message) {
-    this.name = message.name;
-    this.user = message.user;
-    this.roomView = new RoomView({model: this});
+    this.set('name', message.name);
+    this.set('user', message.user);
+    new RoomView({model: this});
   },
 });
 
 var User = Backbone.Model.extend({
   initialize: function(message) {
-    console.log(message);
-    this.name = message.name;
-    this.roomname = message.roomname;
-    this.friends = [];
-    console.log(this);
+    this.set('name', message.name);
+    this.set('roomname', message.roomname);
+    this.set('friends', []);
   }
 });
 
 var Message = Backbone.Model.extend({
   initialize: function(message) {
     if (message !== undefined) {
-      this.text = message.text;
-      this.username = message.username;
-      this.messageView = new MessageView({model: this});
+      this.set('text', message.text);
+      this.set('username', message.username);
+      new MessageView({model: this});
     }
   }
 });
@@ -52,6 +55,26 @@ var postMessage = function(username, roomname, text) {
   });
 };
 
+var postFriend = function(username, friendname) {
+  $.ajax({
+    url: 'https://api.parse.com/1/classes/chatterbox',
+    type: 'POST',
+    data: JSON.stringify({
+      username: username,
+      friendname: friendname,
+      friendify: '12345'
+    }),
+    contentType: 'application/json',
+    success: function (data) {
+      console.log('chatterbox: friended');
+      getMessages(roomname);
+    },
+    error: function (data) {
+      console.error('chatterbox: Failed to friend');
+    }
+  });
+};
+
 var getMessages = function(roomname) {
   $.ajax({
     url: 'https://api.parse.com/1/classes/chatterbox?where=' + encodeURIComponent('{"roomname":"' + roomname + '"}'),
@@ -63,11 +86,29 @@ var getMessages = function(roomname) {
   });
 };
 
+var getFriends = function(user) {
+   $.ajax({
+    url: 'https://api.parse.com/1/classes/chatterbox?where=' + encodeURIComponent('{"friendify": "12345", "username": "' + window.app.get('user').get('name') + '"}'),
+    type: 'GET',
+    contentType: 'application/json',
+    success: function(data) {
+      receiveFriends(data, user);
+    }
+  });
+};
+
 var receiveMessages = function(data) {
-  console.log(data);
   $('.chatdisplay').empty();
   data.results.forEach(function(item) {
     // get real names
     new Message({text: item.text, username: item.username});
   });
+};
+
+var receiveFriends = function(data, user) {
+  var friends = [];
+  data.results.forEach(function(friend) {
+    friends.push(friend.friendname);
+  });
+  user.set('friends', friends);
 };
