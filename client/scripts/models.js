@@ -3,26 +3,28 @@ var rooms = [];
 
 var Room = Backbone.Model.extend({
   initialize: function(message) {
-    name: message.name
+    this.name = message.name;
+    this.user = message.user;
+    this.roomView = new RoomView({model: this});
   },
 });
 
 var User = Backbone.Model.extend({
   initialize: function(message) {
+    console.log(message);
     this.name = message.username;
-    this.room = message.room;
-
-    var newRoom = new Room(room);
-    rooms.push(newRoom);  
+    this.roomname = message.roomname;
+    this.friends = [];
   }
 });
 
 var Message = Backbone.Model.extend({
   initialize: function(message) {
-    this.text = message.text;
-    this.author = message.author;
-
-    var messageView = new MessageView
+    if (message !== undefined) {
+      this.text = message.text;
+      this.username = message.username;
+      this.messageView = new MessageView({model: this});
+    }
   }
 });
 
@@ -54,13 +56,17 @@ var getMessages = function() {
     url: 'https://api.parse.com/1/classes/chatterbox?where=' + encodeURIComponent('{"roomname":"koDonkeyWorld"}'),
     type: 'GET',
     contentType: 'application/json',
-    success: receiveMessages
+    // success: receiveMessages
+    success: function(data) {
+      receiveMessages(data);
+    }
   });
 };
 
 var receiveMessages = function(data) {
-  data.forEach(function(item) {
+  $('.chatdisplay').empty();
+  data.results.forEach(function(item) {
     // get real names
-    new Message({text: item.text, author: item.author});
+    new Message({text: item.text, username: item.username});
   });
 };

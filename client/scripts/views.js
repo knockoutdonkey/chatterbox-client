@@ -5,9 +5,10 @@ var LoginView = Backbone.View.extend({
     $('.login').click(function() {
       var username = $('.loginuser').val();
       var roomname = $('.loginroom').val();
-      var user = new User(username, roomname); // what do i do with this?
-      var room = new Room(roomname); 
-      var roomView = new RoomView({model: room});
+      var user = new User({name: username, roomname: room}); // what do i do with this?
+      var room = new Room({name: roomname, user: user}); 
+      rooms.push(room);
+      // var roomView = new RoomView({model: room});
     });
   },
 
@@ -27,7 +28,8 @@ var LoginView = Backbone.View.extend({
 
 var RoomView = Backbone.View.extend({
   initialize: function() {
-    this.render(this.model.name); 
+    this.render(this.model.name);
+    setInterval(function(){getMessages();}, 500);
   },
 
   render: function() {
@@ -39,28 +41,23 @@ var RoomView = Backbone.View.extend({
         '<div class="chatdisplay">',
           '<ul class="chats">',
           '</ul>',
-          '<form class="sendchat">', 
-            '<input class="sendchattext" placeholder="say something!">',
-            '<button class="sendchatbutton">SendChat</button>',
-          '</form>',  
         '</div>',
+        '<form class="sendchat" onsubmit="postMessage">', 
+          '<input class="sendchattext" placeholder="say something!">',
+          '<button class="sendchatbutton">SendChat</button>',
+        '</form>',  
       '</div>'
-    ];
+    ].join("");
 
     this.$el.html(html);
 
     $('body').append(this.$el);
 
-    // best way to call for new tweets?????
-    // setTimeout?
-
-      // serialize should return an array with the text from the input as the first element
-      // from this page: http://stackoverflow.com/questions/169506/obtain-form-input-fields-using-jquery
-      
-      // send chat to server
     $('.sendchat').submit(function(event) {
-      postMessages(// need to pass user and room name $(this).serialize()[0]);
-    });
+      event.preventDefault();
+      postMessage(this.model.user.name, this.model.name, $('.sendchattext').val());
+      $('.sendchattext').val('');
+    }.bind(this));
   }
 });
 
@@ -69,16 +66,21 @@ var MessageView = Backbone.View.extend({
     this.render(this.model);
   },
 
-  render: function(message) {
+  render: function() {
     var html = [
-      '<li class="chat">'
-        '<span class="chatauthor">' + message.author +': </span>',
-        '<span class="chattext">' + message.text + '</span>,
-      </li>'
-    ];
+      '<li class="chat">',
+        '<span class="chatauthor"></span>: ',
+        '<span class="chattext"></span>',
+      '</li>'
+    ].join("");
+
+    var textNode = document.createTextNode(this.model.text);
+    var authorNode = document.createTextNode(this.model.username);
 
     this.$el.html(html);
-
+    this.$el.find('.chatauthor').append(authorNode);
+    this.$el.find('.chattext').append(textNode);
+    // $('body').append(this.$el);
     $('.chatdisplay').append(this.$el);  
   }
 });

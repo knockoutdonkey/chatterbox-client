@@ -1,84 +1,55 @@
-body {
-    background: #eee;
-    text-align: center;
-    padding: 0 25px;
-    font-family: arial, sans-serif;
+@charset "UTF-8";
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	font-family: Segoe, "Segoe UI", "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+	list-style-type: none;
+	list-style-position: outside;
 }
-
-#main {
-    width: 500px;
-    margin: auto;
-    text-align: left;
-    background: white;
-    padding: 50px 60px;
-    border: solid #ddd;
-    border-width: 0 1px 1px 1px;
+.container {
+	background-color: #DADADA;
+	width: 700px;
+	height: 430px;
+	max-height: 0%;
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-bottom: 5px;
+	padding-left: 10px;
 }
-
-#main h1 {
-    margin-top: 0;
-    font-size: 35px;
-    margin-bottom: 5px;
-    padding: 5px;
+.roomheader {
+	background-color: #F7F7F7;
+	padding-top: 13px;
+	padding-right: 13px;
+	padding-bottom: 13px;
+	padding-left: 13px;
 }
-
-#main h1 span {
-    font-style:italic;
+.chatdisplay {
+	display: block;
+	background-color: #F7F7F7;
+	height: 299px;
+	overflow: scroll;
 }
-
-#main ul {
-    padding-left: 20px;
+.sendchat {
+	display: block;
+	margin-top: 15px;
+	width: 0px;
 }
-
-#main .error {
-    border: 1px solid red;
-    background: #FDEFF0;
-    padding: 20px;
+.sendchattext {
+	width: 561px;
+	height: 47px;
+	padding-top: 0px;
+	margin-top: -9px;
+	display: inline;
 }
-
-#main .success {
-    margin-top: 25px;
+.sendchatbutton {
+	width: 99px;
+	display: inline;
 }
-
-#main .success code {
-    font-size: 12px;
-    color: green;
-    line-height: 13px;
-}
-
-form {
-    padding: 20px;
-    padding-left: 0;
-    margin-bottom: 20px;
-}
-
-form input[type=text] {
-    margin-right: 10px;
-    width: 70%;
-    font-size: 12px;
-    padding: 5px;
-}
-
 .chat {
-    padding: 5px;
-    margin-bottom: 5px;
-    background-color: #eee;
+	margin-left: 10px;
+	font-size: small;
 }
-
-.chat .username {
-    font-weight: 800;
-}
-
-.chat:hover {
-    background-color: #ddd;
-}
-
-.spinner {
-    float: right;
-    height: 46px;
-    margin-bottom: 5px;
-}
-
-.spinner img {
-    padding: 10px;
+.chatauthor {
+	text-shadow: 0px 0px #FA95FF;
 }
