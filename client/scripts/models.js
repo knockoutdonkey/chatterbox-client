@@ -12,9 +12,10 @@ var Room = Backbone.Model.extend({
 var User = Backbone.Model.extend({
   initialize: function(message) {
     console.log(message);
-    this.name = message.username;
+    this.name = message.name;
     this.roomname = message.roomname;
     this.friends = [];
+    console.log(this);
   }
 });
 
@@ -42,7 +43,7 @@ var postMessage = function(username, roomname, text) {
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: Message sent');
-      getMessages();
+      getMessages(roomname);
     },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -51,12 +52,11 @@ var postMessage = function(username, roomname, text) {
   });
 };
 
-var getMessages = function() {
+var getMessages = function(roomname) {
   $.ajax({
-    url: 'https://api.parse.com/1/classes/chatterbox?where=' + encodeURIComponent('{"roomname":"koDonkeyWorld"}'),
+    url: 'https://api.parse.com/1/classes/chatterbox?where=' + encodeURIComponent('{"roomname":"' + roomname + '"}'),
     type: 'GET',
     contentType: 'application/json',
-    // success: receiveMessages
     success: function(data) {
       receiveMessages(data);
     }
@@ -64,6 +64,7 @@ var getMessages = function() {
 };
 
 var receiveMessages = function(data) {
+  console.log(data);
   $('.chatdisplay').empty();
   data.results.forEach(function(item) {
     // get real names

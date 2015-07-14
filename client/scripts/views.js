@@ -1,35 +1,36 @@
 var LoginView = Backbone.View.extend({
   initialize: function() {
     this.render();
-    // where does this event listener go?
-    $('.login').click(function() {
-      var username = $('.loginuser').val();
-      var roomname = $('.loginroom').val();
-      var user = new User({name: username, roomname: room}); // what do i do with this?
-      var room = new Room({name: roomname, user: user}); 
-      rooms.push(room);
-      // var roomView = new RoomView({model: room});
-    });
+    this.user = new User({name: username, roomname: roomname}); // what do i do with this?
+    this.room = new Room({name: roomname, user: user}); 
   },
 
   render: function() {
     var html = [
-    '<div class=login>',
+    '<form class=login>',
       'Username: <input class="loginuser" type="text" placeholder="username">',
       'Room: <input class="loginroom" type="text" placeholder="room">',
-      '<button class="login">Go To Room</button>',
-    '</div>'
+      '<button class="loginbutton">Go To Room</button>',
+    '</form>'
     ].join('');
 
     this.$el.html(html);
-    return this.$el;
+    $('html').append(html);
+
+    $('.login').submit(function(event) {
+      event.preventDefault();
+      var username = $('.loginuser').val();
+      var roomname = $('.loginroom').val();
+      console.log($('.loginroom').val())
+      rooms.push(room);
+    });
   }
 });
 
 var RoomView = Backbone.View.extend({
   initialize: function() {
     this.render(this.model.name);
-    setInterval(function(){getMessages();}, 500);
+    setInterval(function(){ getMessages( this.model.name );}.bind(this), 500);
   },
 
   render: function() {
