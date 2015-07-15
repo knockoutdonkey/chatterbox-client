@@ -21,7 +21,6 @@ var AppView = Backbone.View.extend({
       var roomname = $('.loginroom').val();
       var user = new User({name: username, roomname: roomname});  
       var room = new Room({name: roomname, user: user});
-      console.log(this);
       this.model.set('user', user);
       this.model.set('room', room);
     }.bind(this));
@@ -33,19 +32,19 @@ var RoomView = Backbone.View.extend({
     // this.interval = setInterval(function(){ getMessages( this.model.get("name") );}.bind(this), 500);
     this.render();
     
-    this.model.on('change', function(){
-      if (this.interval !== undefined) {
-        clearInterval(this.interval);
-      }
+    // this.model.on('change', function(){
+    //   if (this.interval !== undefined) {
+    //     clearInterval(this.interval);
+    //   }
 
-      if(this.model.get('name') !== ""){
+      // if(this.model.get('name') !== ""){
         this.render(this.model.get("name"));
         this.interval = setInterval(function(){ 
           getMessages(this.model.get("name"));
           getFriends(this.model.get('user'));
         }.bind(this), 500);
-      }
-    }.bind(this));
+      // }
+    // }.bind(this));
   },
 
   render: function() {
@@ -98,18 +97,26 @@ var MessageView = Backbone.View.extend({
     this.$el.html(html);
     this.$el.find('.chatauthor').append(authorNode);
     this.$el.find('.chattext').append(textNode);
+
+    if (this.model.get('friend')) {
+      this.$el.find('.chatauthor').addClass('friend');
+    }
+
     $('.chatdisplay').append(this.$el);
-    
-    $(".chatauthor").click(function(event) {
-        console.log('hello');
-      if ($(".chatauthor").hasClass(".friend")) {
-        // send delete request
+
+    this.$el.find('.chatauthor').click(function(event) {
+      var author = $(this).text();
+      if ($(this).hasClass("friend")) {
+        $(this).removeClass('friend');
       } else {
-        postFriend( app.get('user'),$(".chatauthor").text());
+        $('.chatauthor').each(function(index, value) {
+          if ($(value).text() === author) {
+            $(value).addClass('friend');
+          }
+        });
+        postFriend( window.app.get('user').get('name'),$(this).text());
       }
       getFriends();
     });
-
-    // $('body').append(this.$el);
   }
 });

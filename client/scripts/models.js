@@ -25,6 +25,7 @@ var User = Backbone.Model.extend({
 var Message = Backbone.Model.extend({
   initialize: function(message) {
     if (message !== undefined) {
+      this.set('friend', message.friend);
       this.set('text', message.text);
       this.set('username', message.username);
       new MessageView({model: this});
@@ -67,7 +68,6 @@ var postFriend = function(username, friendname) {
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: friended');
-      getMessages(roomname);
     },
     error: function (data) {
       console.error('chatterbox: Failed to friend');
@@ -87,12 +87,16 @@ var getMessages = function(roomname) {
 };
 
 var getFriends = function(user) {
+   // console.log(window.app.get('user').get('name'));
    $.ajax({
     url: 'https://api.parse.com/1/classes/chatterbox?where=' + encodeURIComponent('{"friendify": "12345", "username": "' + window.app.get('user').get('name') + '"}'),
     type: 'GET',
     contentType: 'application/json',
     success: function(data) {
       receiveFriends(data, user);
+    },
+    error: function(data) {
+      console.log('failed to get friendz :(');
     }
   });
 };
@@ -100,8 +104,12 @@ var getFriends = function(user) {
 var receiveMessages = function(data) {
   $('.chatdisplay').empty();
   data.results.forEach(function(item) {
-    // get real names
-    new Message({text: item.text, username: item.username});
+    var friend = false;
+    var friendList = window.app.get('user').get('friends');
+    if (friendList.indexOf(item.username) > -1) {
+      friend = true;
+    }
+    new Message({text: item.text, username: item.username, friend: friend});
   });
 };
 
@@ -110,5 +118,5 @@ var receiveFriends = function(data, user) {
   data.results.forEach(function(friend) {
     friends.push(friend.friendname);
   });
-  user.set('friends', friends);
+  window.app.get('user').set('friends', friends);
 };
